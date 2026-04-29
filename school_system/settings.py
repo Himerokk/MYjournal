@@ -62,6 +62,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'school_system.wsgi.application'
 
 # 🔒 ЕДИНСТВЕННЫЙ БЛОК ПОДКЛЮЧЕНИЯ БАЗЫ ДАННЫХ
+# 🔒 ЕДИНСТВЕННЫЙ БЛОК ПОДКЛЮЧЕНИЯ БАЗЫ ДАННЫХ
 db_url = os.environ.get("DATABASE_URL", "").strip()
 
 if db_url and db_url.startswith(("postgres://", "postgresql://")):
@@ -72,6 +73,8 @@ if db_url and db_url.startswith(("postgres://", "postgresql://")):
             ssl_require=True,
         )
     }
+    # Закрываем соединение после каждого запроса, чтобы не превысить лимит пулера Supabase (15 подключений)
+    DATABASES["default"]["CONN_MAX_AGE"] = 0
 else:
     DATABASES = {
         "default": {
@@ -99,8 +102,8 @@ STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 STORAGES = {
-    "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
     },
 }
 
