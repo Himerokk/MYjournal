@@ -119,6 +119,7 @@ JAZZMIN_SETTINGS = {
     "search_model": ["grades.Student"],
     "show_sidebar": True,
     "navigation_expanded": True,
+
     "icons": {
         "auth": "fas fa-users-cog",
         "auth.user": "fas fa-user",
@@ -126,12 +127,34 @@ JAZZMIN_SETTINGS = {
         "grades.Subject": "fas fa-book",
         "grades.Record": "fas fa-check-double",
     },
+
     "topmenu_links": [
         {"name": "Главная", "url": "admin:index"},
         {"name": "📊 Журнал оценок", "url": "/mark-grades/"},
         {"name": "📍 Посещаемость", "url": "/mark-attendance/"},
         {"name": "📅 Расписание", "url": "/schedule/"},
     ],
+
+    "custom_links": {
+        "grades": [
+            {
+                "name": "📊 Журнал оценок",
+                "url": "/mark-grades/",
+                "icon": "fas fa-chart-line",
+            },
+            {
+                "name": "📍 Посещаемость",
+                "url": "/mark-attendance/",
+                "icon": "fas fa-user-check",
+            },
+            {
+                "name": "📅 Расписание",
+                "url": "/schedule/",
+                "icon": "fas fa-calendar",
+            },
+        ]
+    },
+
     "custom_css": "grades/css/admin_neon.css",
 }
 
