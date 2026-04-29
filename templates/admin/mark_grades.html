@@ -1,0 +1,115 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<style>
+    .journal-container {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(139, 92, 246, 0.3);
+        border-radius: 20px;
+        padding: 30px;
+        backdrop-filter: blur(10px);
+    }
+    .neon-text {
+        background: linear-gradient(90deg, #06b6d4, #8b5cf6);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 900;
+        font-size: 1.8rem;
+        margin-bottom: 25px;
+    }
+    .controls-row {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 30px;
+        align-items: center;
+        background: rgba(0,0,0,0.2);
+        padding: 20px;
+        border-radius: 12px;
+    }
+    .input-glass {
+        background: #000 !important;
+        border: 1px solid #444 !important;
+        color: #fff !important;
+        padding: 8px 15px !important;
+        border-radius: 8px !important;
+    }
+    .input-glass:focus {
+        border-color: #ec4899 !important;
+        box-shadow: 0 0 10px rgba(236, 72, 153, 0.4);
+    }
+    .grade-table { width: 100%; border-collapse: collapse; }
+    .grade-table th { 
+        text-align: left; padding: 15px; color: #94a3b8; 
+        text-transform: uppercase; font-size: 0.7rem; letter-spacing: 2px;
+    }
+    .grade-table td { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .btn-save {
+        background: linear-gradient(135deg, #8b5cf6, #ec4899);
+        color: white; border: none; padding: 12px 30px; border-radius: 10px;
+        font-weight: 800; cursor: pointer; margin-top: 20px; transition: 0.3s;
+    }
+    .btn-save:hover { transform: scale(1.02); box-shadow: 0 0 20px rgba(139, 92, 246, 0.5); }
+</style>
+
+<div class="journal-container">
+    <div class="neon-text">Электронный Журнал</div>
+
+    <form method="post" id="journalForm">
+        {% csrf_token %}
+        <div class="controls-row">
+            <div>
+                <label style="display:block; font-size: 0.7rem; color: #666; margin-bottom: 5px;">ПРЕДМЕТ</label>
+                <select name="subject" id="subject_select" class="input-glass" required style="min-width: 250px;">
+                    {% for sub in subjects %}
+                        <option value="{{ sub.id }}" {% if sub.id == current_subject %}selected{% endif %}>{{ sub.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label style="display:block; font-size: 0.7rem; color: #666; margin-bottom: 5px;">ДАТА УРОКА</label>
+                <input type="date" name="date" id="date_select" value="{{ current_date }}" class="input-glass" required>
+            </div>
+        </div>
+
+        <table class="grade-table">
+            <thead>
+                <tr>
+                    <th>Студент</th>
+                    <th>Оценка (1-5)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                <tr>
+                    <td style="font-weight: 600; color: #fff;">{{ student.full_name }}</td>
+                    <td>
+                        <input type="number" 
+                               name="grade_{{ student.id }}" 
+                               value="{{ student.grade }}"
+                               min="2" max="5" 
+                               class="input-glass" 
+                               placeholder="—"
+                               style="width: 80px; text-align: center;">
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <button type="submit" class="btn-save">ВНЕСТИ ДАННЫЕ В ЖУРНАЛ</button>
+    </form>
+</div>
+
+<script>
+function updateJournal() {
+    const sub = document.getElementById('subject_select').value;
+    const date = document.getElementById('date_select').value;
+    
+    // Если дата выбрана, перезагружаем страницу с параметрами
+    if (sub && date) {
+        window.location.href = `?subject=${sub}&date=${date}`;
+    }
+}
+</script>
+
+{% endblock %}

@@ -1,0 +1,194 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<style>
+    :root {
+        --accent: #8b5cf6;
+        --accent-2: #ec4899;
+        --bg-glass: rgba(255, 255, 255, 0.03);
+    }
+    .journal-wrapper {
+        padding: 20px;
+        font-family: 'Inter', sans-serif;
+        background-color: #030305; /* Глубокий темный фон */
+        min-height: 100vh;
+    }
+    .glass-card {
+        background: var(--bg-glass);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 24px;
+        padding: 30px;
+        backdrop-filter: blur(12px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+    .neon-title {
+        font-size: 2rem;
+        font-weight: 900;
+        background: linear-gradient(90deg, #06b6d4, #8b5cf6);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 30px;
+        letter-spacing: -1px;
+    }
+    .filter-bar {
+        display: flex;
+        gap: 20px;
+        background: rgba(0,0,0,0.3);
+        padding: 20px;
+        border-radius: 16px;
+        margin-bottom: 30px;
+        align-items: center;
+    }
+    .input-neon {
+        background: #0f172a !important;
+        border: 1px solid #334155 !important;
+        color: #f8fafc !important;
+        border-radius: 12px !important;
+        padding: 10px 15px !important;
+        transition: all 0.3s;
+        width: 100%;
+    }
+    .input-neon:focus {
+        border-color: var(--accent) !important;
+        box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+    }
+    /* Стилизация чекбоксов */
+    .custom-checkbox {
+        width: 28px;
+        height: 28px;
+        cursor: pointer;
+        appearance: none;
+        background: #1e293b;
+        border: 2px solid #475569;
+        border-radius: 8px;
+        position: relative;
+        transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .custom-checkbox:checked {
+        background: var(--accent-2);
+        border-color: var(--accent-2);
+        box-shadow: 0 0 20px rgba(236, 72, 153, 0.6);
+        transform: scale(1.1);
+    }
+    .custom-checkbox:checked::after {
+        content: '✔';
+        color: white;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 16px;
+    }
+    .student-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 18px 25px;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        transition: 0.2s;
+    }
+    .student-row:hover {
+        background: rgba(255,255,255,0.04);
+        border-radius: 12px;
+    }
+    .btn-submit {
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        border: none;
+        color: white;
+        padding: 20px 40px;
+        border-radius: 18px;
+        font-weight: 800;
+        text-transform: uppercase;
+        cursor: pointer;
+        margin-top: 30px;
+        width: 100%;
+        transition: 0.4s;
+        letter-spacing: 2px;
+    }
+    .btn-submit:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 30px rgba(236, 72, 153, 0.4);
+        filter: brightness(1.1);
+    }
+    .check-all-btn {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid #475569;
+        color: #94a3b8;
+        padding: 8px 16px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+    .check-all-btn:hover {
+        background: #fff;
+        color: #000;
+    }
+</style>
+
+<div class="journal-wrapper">
+    <div class="glass-card">
+        <h1 class="neon-title">📍 Журнал присутствия</h1>
+        
+        <form method="post" id="attendanceForm">
+            {% csrf_token %}
+            
+            <div class="filter-bar">
+                <div style="flex: 1;">
+                    <label style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 8px;">ПРЕДМЕТ</label>
+                    <select name="subject" id="subject_select" class="input-neon" required onchange="updateJournal()">
+                        {% for sub in subjects %}
+                            <option value="{{ sub.id }}" {% if sub.id|slugify == request.GET.subject %}selected{% endif %}>{{ sub.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div style="flex: 1;">
+                    <label style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 8px;">ДАТА УРОКА</label>
+                    <input type="date" name="date" id="date_select" value="{{ selected_date|date:'Y-m-d' }}" class="input-neon" required onchange="updateJournal()">
+                </div>
+            </div>
+
+            <div style="text-align: right; margin-bottom: 15px;">
+                <button type="button" class="check-all-btn" onclick="checkAll()">
+                    Выбрать всех
+                </button>
+            </div>
+
+            <div class="students-list">
+                {% for student in students %}
+                <div class="student-row">
+                    <span style="color: #e2e8f0; font-weight: 500; font-size: 1.1rem;">{{ student.full_name }}</span>
+                    <input type="checkbox" 
+                           name="attendance_{{ student.id }}" 
+                           class="custom-checkbox" 
+                           {% if student.id in present_list %}checked{% endif %}>
+                </div>
+                {% endfor %}
+            </div>
+
+            <button type="submit" class="btn-submit">Сохранить посещаемость</button>
+        </form>
+    </div>
+</div>
+
+<script>
+// Функция для автоматического обновления страницы при смене даты или предмета
+function updateJournal() {
+    const sub = document.getElementById('subject_select').value;
+    const date = document.getElementById('date_select').value;
+    // Если дата выбрана, перезагружаем страницу с параметрами
+    if (date) {
+        window.location.href = `?subject=${sub}&date=${date}`;
+    }
+}
+
+// Функция "Выбрать всех"
+function checkAll() {
+    const checkboxes = document.querySelectorAll('.custom-checkbox');
+    const anyUnchecked = Array.from(checkboxes).some(c => !c.checked);
+    checkboxes.forEach(c => c.checked = anyUnchecked);
+}
+</script>
+
+{% endblock %}

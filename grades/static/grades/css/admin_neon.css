@@ -1,0 +1,32 @@
+/* Глубокий темный фон как на сайте */
+.content-wrapper, .main-sidebar, .main-header {
+    background-color: #050505 !important;
+}
+
+/* Стеклянные карточки с неоновой обводкой */
+.card {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(139, 92, 246, 0.4) !important;
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.1) !important;
+    border-radius: 15px !important;
+}
+
+/* Переливающийся текст (как 11 ИСИП-В) */
+.brand-link, .content-header h1 {
+    background: linear-gradient(to right, #06b6d4, #8b5cf6, #ec4899);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 900 !important;
+}
+
+/* Подсветка строк при наведении */
+table.table tr:hover {
+    background: rgba(6, 182, 212, 0.05) !important;
+}
+
+/* Яркие кнопки */
+.btn-primary {
+    background: linear-gradient(135deg, #8b5cf6, #ec4899) !important;
+    border: none !important;
+}

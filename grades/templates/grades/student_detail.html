@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/ru.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITHub Terminal | Protocol: {{ student.full_name }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #010204;
+            --accent-cyan: #06b6d4;
+            --accent-pink: #ec4899;
+            --accent-purple: #8b5cf6;
+            --accent-green: #10b981;
+            --glass-bg: rgba(255, 255, 255, 0.02);
+            --border: rgba(255, 255, 255, 0.06);
+            --neon-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
+        }
+
+        body { 
+            font-family: 'Montserrat', sans-serif; 
+            background-color: var(--bg-dark); 
+            color: #fff; 
+            margin: 0; 
+            padding: 40px 20px;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 85% 85%, rgba(236, 72, 153, 0.1) 0%, transparent 50%);
+            overflow-x: hidden;
+            animation: fadeInPage 0.8s cubic-bezier(0.2, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes fadeInPage {
+            0% { opacity: 0; transform: translateY(30px) scale(0.95); filter: blur(10px); }
+            100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+        }
+
+        .container { max-width: 900px; margin: 0 auto; }
+
+        /* --- КИБЕР НАВИГАЦИЯ --- */
+        .top-nav {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 50px;
+            animation: slideInDown 0.6s 0.2s ease-out both;
+        }
+        @keyframes slideInDown { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .back-link {
+            display: inline-flex; align-items: center; gap: 12px;
+            color: #666; text-decoration: none; font-weight: 800;
+            font-size: 0.7rem; text-transform: uppercase; letter-spacing: 3px;
+            padding: 14px 28px; border: 1px solid var(--border); border-radius: 50px;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: rgba(0,0,0,0.3); position: relative; overflow: hidden;
+        }
+        .back-link::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(6, 182, 212, 0.1), transparent);
+            transition: 0.5s;
+        }
+        .back-link:hover {
+            color: #fff; border-color: var(--accent-cyan);
+            box-shadow: var(--neon-shadow); transform: translateX(-5px);
+        }
+        .back-link:hover::before { left: 100%; }
+
+        /* КИБЕР КАЛЕНДАРЬ */
+        .cyber-filter {
+            display: flex; align-items: center; gap: 10px;
+            background: var(--glass-bg); padding: 6px 6px 6px 20px;
+            border-radius: 50px; border: 1px solid var(--border); backdrop-filter: blur(10px);
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+        }
+        .date-input {
+            background: transparent; border: none; color: var(--accent-cyan);
+            font-family: 'Montserrat', sans-serif; font-weight: 800; outline: none;
+            padding: 8px; cursor: pointer; text-shadow: 0 0 10px rgba(6, 182, 212, 0.6);
+        }
+
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1) brightness(1.5) sepia(100%) saturate(500%) hue-rotate(160deg);
+            cursor: pointer;
+            opacity: 1;
+        }
+
+        /* --- ШАПКА ПРОФИЛЯ --- */
+        .header-profile { margin-bottom: 60px; text-align: center; }
+        .protocol-tag {
+            color: var(--accent-pink); font-size: 0.8rem; font-weight: 900; letter-spacing: 6px;
+            text-transform: uppercase; display: inline-block; padding: 10px 24px;
+            background: rgba(236, 72, 153, 0.06); border-radius: 12px; border: 1px solid rgba(236, 72, 153, 0.2);
+            text-shadow: 0 0 15px rgba(236, 72, 153, 0.5); margin-bottom: 15px;
+        }
+        .student-name {
+            font-weight: 900; font-size: 4.5rem; margin: 0; letter-spacing: -3px;
+            background: linear-gradient(to bottom, #fff 40%, #444);
+            -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+            line-height: 0.9;
+        }
+
+        /* --- БЛОК СТАТИСТИКИ --- */
+        .stats-hud {
+            display: grid; grid-template-columns: 2fr 1fr; gap: 30px; margin-bottom: 50px;
+            animation: slideInLeft 0.6s 0.4s ease-out both;
+        }
+        @keyframes slideInLeft { from { transform: translateX(-40px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        .hud-card {
+            background: var(--glass-bg); backdrop-filter: blur(20px);
+            border: 1px solid var(--border); border-radius: 30px; padding: 35px;
+            position: relative; overflow: hidden;
+        }
+
+        .attendance-tracker { display: flex; align-items: end; gap: 12px; height: 120px; }
+        .bar-col { flex: 1; position: relative; height: 100%; display: flex; align-items: end; }
+        .bar-visual {
+            width: 100%; border-radius: 12px 12px 4px 4px; background: rgba(255,255,255,0.03);
+            border-bottom: 4px solid var(--accent-cyan);
+            height: var(--h); /* Динамическая высота через переменную */
+            transition: height 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .bar-col:nth-child(even) .bar-visual { border-bottom-color: var(--accent-purple); }
+        .bar-col:nth-child(3n) .bar-visual { border-bottom-color: var(--accent-pink); }
+
+        .grade-monitor { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .grade-value {
+            font-size: 5.5rem; font-weight: 900; line-height: 1;
+            color: var(--accent-green); text-shadow: 0 0 40px rgba(16, 185, 129, 0.4);
+        }
+        .grade-value.bad-grade { color: var(--accent-pink); text-shadow: 0 0 40px rgba(236, 72, 153, 0.4); }
+
+        .hud-label {
+            font-size: 0.7rem; font-weight: 900; color: #444; text-transform: uppercase;
+            letter-spacing: 4px; margin-top: 20px;
+        }
+
+        /* --- КАРТОЧКА ПРЕДМЕТА --- */
+        .cyber-cell {
+            background: var(--glass-bg); backdrop-filter: blur(25px);
+            border: 1px solid var(--border); border-radius: 24px;
+            margin-bottom: 20px; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        .cyber-cell:hover { border-color: rgba(255,255,255,0.2); transform: scale(1.01); }
+        .cyber-cell.active { border-color: var(--accent-cyan); box-shadow: 0 0 40px rgba(6, 182, 212, 0.15); }
+
+        .cell-header { padding: 30px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .cell-icon-wrap {
+            width: 54px; height: 54px; background: #000; border: 1px solid var(--border); border-radius: 15px;
+            display: flex; align-items: center; justify-content: center; font-size: 1.6rem;
+            box-shadow: inset 0 0 15px rgba(255,255,255,0.05);
+        }
+
+        .cell-name { font-weight: 800; font-size: 1.2rem; color: #fff; letter-spacing: 0.5px; }
+        .cell-performance { font-size: 0.6rem; color: var(--accent-cyan); font-weight: 900; text-transform: uppercase; letter-spacing: 3px; margin-top: 4px; }
+
+        .cell-details {
+            max-height: 0; overflow: hidden; transition: max-height 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+            background: rgba(0,0,0,0.4);
+        }
+        .cyber-cell.active .cell-details { max-height: 1200px; border-top: 1px solid var(--border); }
+        .detail-content { padding: 20px 30px 40px; }
+
+        /* Лог записей */
+        .protocol-entry {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px 0; border-bottom: 1px solid rgba(255,255,255,0.03);
+            animation: fadeInRecord 0.4s ease-out both;
+            animation-delay: var(--delay);
+        }
+        @keyframes fadeInRecord { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
+
+        .entry-date { color: #555; font-weight: 800; font-size: 0.8rem; text-transform: uppercase; }
+        
+        .grade-chip {
+            min-width: 38px; height: 38px; border-radius: 10px; background: #000;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 1.1rem; border: 2px solid;
+        }
+        .grade-5 { border-color: var(--accent-green); color: var(--accent-green); box-shadow: 0 0 15px rgba(16, 185, 129, 0.2); }
+        .grade-4 { border-color: var(--accent-cyan); color: var(--accent-cyan); box-shadow: 0 0 15px rgba(6, 182, 212, 0.2); }
+        .grade-3 { border-color: var(--accent-purple); color: var(--accent-purple); box-shadow: 0 0 15px rgba(139, 92, 246, 0.2); }
+        .grade-2 { border-color: var(--accent-pink); color: var(--accent-pink); box-shadow: 0 0 15px rgba(236, 72, 153, 0.2); }
+
+        .entry-status {
+            font-weight: 900; font-size: 0.6rem; text-transform: uppercase;
+            padding: 8px 16px; border-radius: 10px; border: 1px solid; letter-spacing: 1px;
+        }
+        .status-on { color: var(--accent-cyan); border-color: rgba(6, 182, 212, 0.3); background: rgba(6, 182, 212, 0.05); }
+        .status-off { color: var(--accent-pink); border-color: rgba(236, 72, 153, 0.3); background: rgba(236, 72, 153, 0.05); }
+
+        .arrow-svg { transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); stroke: #333; }
+        .cyber-cell.active .arrow-svg { transform: rotate(180deg); stroke: var(--accent-cyan); }
+
+        .status-empty { padding: 60px; text-align: center; color: #222; font-weight: 900; letter-spacing: 5px; text-transform: uppercase; }
+    /* Контейнер самого календаря */
+.flatpickr-calendar {
+    background: #0a0b0d !important; /* Глубокий черный */
+    border: 1px solid var(--accent-cyan) !important;
+    box-shadow: 0 0 25px rgba(6, 182, 212, 0.2) !important;
+    border-radius: 15px !important;
+    font-family: 'Montserrat', sans-serif !important;
+}
+
+/* Выбранный день */
+.flatpickr-day.selected {
+    background: var(--accent-cyan) !important;
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.5) !important;
+    border-color: var(--accent-cyan) !important;
+}
+
+/* Текущий день (сегодня) */
+.flatpickr-day.today {
+    border-color: var(--accent-pink) !important;
+}
+
+/* Названия месяцев и дней */
+.flatpickr-current-month, .flatpickr-weekday {
+    color: var(--accent-cyan) !important;
+    text-transform: uppercase;
+    font-weight: 900;
+    letter-spacing: 1px;
+}
+
+/* Стрелочки навигации */
+.flatpickr-prev-month svg, .flatpickr-next-month svg {
+    fill: var(--accent-pink) !important;
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="top-nav">
+            <a href="{% url 'index' %}" class="back-link">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                Назад в систему
+            </a>
+
+            <div class="cyber-filter">
+                <form method="GET" style="display: flex; align-items: center; gap: 15px;">
+                    {# Используем default:'', чтобы инпут не писал 'None' #}
+                   <input type="text" name="date" id="cyber-calendar" class="date-input" 
+                        value="{{ selected_date|default:'' }}" placeholder="ВЫБЕРИТЕ ДАТУ">
+                    
+                    {# Кнопка появится, только если дата выбрана #}
+                    {% if selected_date %}
+                        <a href="{% url 'student_detail' student.id %}" style="color: var(--accent-pink); font-size: 0.6rem; text-decoration: none; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; border: 1px solid rgba(236, 72, 153, 0.3); padding: 8px 15px; border-radius: 20px; transition: 0.3s;" onmouseover="this.style.background='rgba(236, 72, 153, 0.1)'" onmouseout="this.style.background='transparent'">
+                            За всё время [X]
+                        </a>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+
+        <header class="header-profile">
+            <div class="protocol-tag">Active Protocol: {{ student.id|add:1000 }}</div>
+            <h1 class="student-name">{{ student.full_name }}</h1>
+        </header>
+
+        {% if performance %}
+        <div class="stats-hud">
+            <div class="hud-card">
+                <div class="attendance-tracker">
+                    <div class="bar-col"><div class="bar-visual" style="--h: 60%;"></div></div>
+                    <div class="bar-col"><div class="bar-visual" style="--h: 85%;"></div></div>
+                    <div class="bar-col"><div class="bar-visual" style="--h: 45%;"></div></div>
+                    <div class="bar-col"><div class="bar-visual" style="--h: {{ attendance_percent }}%;"></div></div>
+                    <div class="bar-col"><div class="bar-visual" style="--h: 95%;"></div></div>
+                    <div class="bar-col"><div class="bar-visual" style="--h: 70%;"></div></div>
+                </div>
+                <div class="hud-label">Посещаемость // {{ attendance_percent }}%</div>
+            </div>
+            <div class="hud-card grade-monitor">
+                <div class="grade-value {% if avg_grade != '—' and avg_grade < 3.5 %}bad-grade{% endif %}">{{ avg_grade }}</div>
+                <div class="hud-label">Средний балл</div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% for subject, records in performance.items %}
+            {# Логика: если смотрим за всё время — показываем всё. Если по дате — только те, где есть записи. #}
+            {% if records or not selected_date %}
+            <div class="cyber-cell" onclick="this.classList.toggle('active')">
+                <div class="cell-header">
+                    <div style="display: flex; align-items: center; gap: 25px;">
+                        <div class="cell-icon-wrap">
+                            {% if "Код" in subject.name or "Python" in subject.name %}💻
+                            {% elif "Сет" in subject.name %}📡
+                            {% else %}📑{% endif %}
+                        </div>
+                        <div>
+                            <div class="cell-name">{{ subject.name }}</div>
+                            <div class="cell-performance">
+                                {% if records %} Записи: {{ records.count }} {% else %} Нет данных {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <svg class="arrow-svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+
+                <div class="cell-details">
+                    <div class="detail-content">
+                        {% for record in records %}
+                            <div class="protocol-entry" style="--delay: 0.{{ forloop.counter }}s">
+                                <span class="entry-date">{{ record.date|date:"d M Y" }}</span>
+                                <div style="display: flex; gap: 20px; align-items: center;">
+                                    {% if record.grade %}
+                                        <div class="grade-chip grade-{{ record.grade }}">{{ record.grade }}</div>
+                                    {% endif %}
+                                    <span class="entry-status {% if record.is_present %}status-on{% else %}status-off{% endif %}">
+                                        {% if record.is_present %}Присутствовал{% else %}Н/Б{% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <div class="status-empty" style="font-size: 0.7rem; padding: 20px; letter-spacing: 2px;">НЕТ ДАННЫХ</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        {% empty %}
+            <div class="status-empty">База данных пуста</div>
+        {% endfor %}
+    </div> 
+<script>
+    flatpickr("#cyber-calendar", {
+        // Указываем русский язык
+        locale: "ru", 
+        dateFormat: "Y-m-d",
+        disableMobile: true,
+        // Настройки календаря (первый день недели — понедельник)
+        firstDayOfWeek: 1, 
+        onChange: function(selectedDates, dateStr, instance) {
+            // Отправляем форму сразу после выбора даты
+            instance.element.closest('form').submit();
+        }
+    });
+</script>
+</body>

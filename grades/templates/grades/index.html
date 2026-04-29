@@ -1,0 +1,456 @@
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/ru.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITHub | Кибер-Журнал v2.0</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #030305;
+            --accent-purple: #8b5cf6;
+            --accent-pink: #ec4899;
+            --accent-cyan: #06b6d4;
+            --glass: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.12);
+        }
+
+        body { 
+            font-family: 'Montserrat', sans-serif; 
+            background-color: var(--bg-dark); 
+            color: #fff; 
+            margin: 0; 
+            padding: 40px 20px;
+            min-height: 100vh;
+            overflow-x: hidden; /* Важно для мобилок */
+            animation: fadeInPage 0.8s ease-out forwards;
+            box-sizing: border-box;
+        }
+
+        *, *:before, *:after {
+            box-sizing: inherit;
+        }
+
+        /* ФОН */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: 
+                radial-gradient(circle at 10% 10%, rgba(139, 92, 246, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(236, 72, 153, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.05) 0%, transparent 50%);
+            z-index: -1;
+        }
+
+        @keyframes fadeInPage {
+            0% { opacity: 0; transform: translateY(10px) scale(0.98); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .fade-out {
+            animation: fadeOutPage 0.5s ease-in forwards !important;
+        }
+
+        @keyframes fadeOutPage {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(1.05); filter: blur(10px); }
+        }
+
+        .container { max-width: 1000px; margin: 0 auto; width: 100%; }
+
+        /* HEADER Section */
+        .header { text-align: center; margin-bottom: 60px; }
+
+        .logo-main {
+            font-weight: 900; font-size: 3.5rem; margin: 0; letter-spacing: -2px; line-height: 1;
+            background: linear-gradient(to bottom, #fff 30%, #444);
+            -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 15px rgba(255,255,255,0.1));
+        }
+
+        .group-number {
+            display: inline-block; font-weight: 900; font-size: 1.5rem; margin-top: 10px;
+            text-transform: uppercase; letter-spacing: 4px;
+            background: linear-gradient(to right, var(--accent-cyan), var(--accent-purple), var(--accent-pink), var(--accent-cyan));
+            background-size: 300% auto; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+            animation: gradientFlow 4s linear infinite;
+        }
+
+        @keyframes gradientFlow {
+            0% { background-position: 0% center; }
+            100% { background-position: 300% center; }
+        }
+
+        .session-info {
+            margin-top: 35px; display: flex; justify-content: center; align-items: center; gap: 15px; flex-wrap: wrap;
+        }
+
+        .date-picker-neon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border);
+            border-radius: 15px; padding: 12px 20px; color: var(--accent-cyan);
+            font-family: 'Montserrat', sans-serif; font-weight: 800; text-transform: uppercase;
+            font-size: 0.85rem; outline: none; cursor: pointer; transition: all 0.3s ease;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            width: auto; min-width: 180px;
+        }
+
+        .date-picker-neon:hover {
+            border-color: var(--accent-pink); box-shadow: 0 0 20px rgba(236, 72, 153, 0.2); transform: translateY(-2px);
+        }
+
+        .live-status {
+            color: var(--accent-pink); font-size: 0.7rem; text-transform: uppercase; font-weight: 900;
+            letter-spacing: 2px; padding: 6px 12px; border-radius: 8px;
+            background: rgba(236, 72, 153, 0.1); border: 1px solid rgba(236, 72, 153, 0.2);
+            text-shadow: 0 0 10px var(--accent-pink); animation: blink 2s infinite;
+            text-align: center; white-space: nowrap;
+        }
+
+        @keyframes blink { 50% { opacity: 0.5; } }
+
+        .btn-schedule {
+            background: #fff; color: #000; text-decoration: none; text-align: center;
+            font-size: 0.75rem; font-weight: 900; padding: 12px 20px; border-radius: 15px;
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3); display: inline-block;
+            flex-grow: 1; max-width: 250px;
+        }
+
+        .btn-schedule:hover { transform: scale(1.05) translateY(-3px); box-shadow: 0 15px 30px rgba(255,255,255,0.2); }
+
+        /* --- ИНДИКАТОРЫ --- */
+        .status-indicators { 
+            display: flex; 
+            gap: 8px; 
+            margin-top: 10px; 
+            justify-content: center; 
+        }
+        
+        .indicator-dot { 
+            width: 12px; 
+            height: 12px; 
+            border-radius: 50%; 
+            background: rgba(255, 255, 255, 0.05); 
+            transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.8);
+        }
+
+        .indicator-dot:nth-child(1) { animation-delay: 0.1s; }
+        .indicator-dot:nth-child(2) { animation-delay: 0.4s; }
+        .indicator-dot:nth-child(3) { animation-delay: 0.2s; }
+        .indicator-dot:nth-child(4) { animation-delay: 0.6s; }
+        .indicator-dot:nth-child(5) { animation-delay: 0.3s; }
+
+        .indicator-dot.present {
+            background: #10b981;
+            box-shadow: 0 0 10px #10b981, 0 0 20px rgba(16, 185, 129, 0.6), inset 0 0 4px rgba(0,0,0,0.5);
+            animation: pulse-green 2.5s infinite ease-in-out;
+        }
+        .indicator-dot.present::after {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 60%); z-index: -1;
+        }
+
+        .indicator-dot.absent {
+            background: var(--accent-pink);
+            box-shadow: 0 0 10px var(--accent-pink), 0 0 20px rgba(236, 72, 153, 0.6), inset 0 0 4px rgba(0,0,0,0.5);
+            animation: pulse-red 2.3s infinite ease-in-out;
+        }
+        .indicator-dot.absent::after {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(236, 72, 153, 0.15) 0%, transparent 60%); z-index: -1;
+        }
+
+        @keyframes pulse-green {
+            0%, 100% { opacity: 1; transform: scale(1); filter: brightness(1); }
+            50% { opacity: 0.6; transform: scale(1.15); filter: brightness(1.3); box-shadow: 0 0 15px #10b981, 0 0 30px rgba(16, 185, 129, 0.8); }
+        }
+        @keyframes pulse-red {
+            0%, 100% { opacity: 1; transform: scale(1); filter: brightness(1); }
+            50% { opacity: 0.5; transform: scale(1.15); filter: brightness(1.4); box-shadow: 0 0 15px var(--accent-pink), 0 0 30px rgba(236, 72, 153, 0.8); }
+        }
+
+        /* TABLE STYLES */
+        .glass-card { 
+            background: var(--glass); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+            border-radius: 20px; border: 1px solid var(--border); box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+            overflow: hidden; position: relative;
+            padding-bottom: 0; /* Убираем лишние отступы снизу карточки */
+        }
+
+        table { width: 100%; border-collapse: collapse; }
+        
+        th { 
+            padding: 20px 30px; text-align: left; font-size: 0.7rem; letter-spacing: 3px; text-transform: uppercase; color: #666; 
+            background: rgba(0,0,0,0.3); 
+        }
+        
+        td { 
+            padding: 20px 30px; border-bottom: 1px solid var(--border); vertical-align: middle; 
+        }
+
+        .avatar { 
+            width: 50px; height: 50px; background: linear-gradient(135deg, #1a1a1a, #000);
+            border: 1px solid var(--border); border-radius: 18px; display: flex; 
+            align-items: center; justify-content: center; font-weight: 900; font-size: 1.2rem; flex-shrink: 0;
+        }
+
+        .student-name { font-weight: 700; font-size: 1.1rem; color: #fff; transition: 0.3s; word-break: break-word;}
+        tr:hover .student-name { color: var(--accent-cyan); text-shadow: 0 0 10px rgba(6, 182, 212, 0.5); }
+
+        .status-pill { padding: 10px 22px; border-radius: 14px; font-size: 0.75rem; font-weight: 900; text-transform: uppercase; display: inline-block; }
+        .present { background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan); }
+        .absent { background: rgba(236, 72, 153, 0.15); color: var(--accent-pink); }
+
+        .btn-profile {
+            padding: 12px 22px; border-radius: 14px; font-size: 0.7rem; font-weight: 900;
+            text-transform: uppercase; text-decoration: none; background: rgba(139, 92, 246, 0.1);
+            color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.2); transition: 0.3s;
+            display: block; width: fit-content; margin-left: auto; /* Выравнивание вправо для десктопа */
+        }
+        .btn-profile:hover { background: var(--accent-purple); color: #fff; box-shadow: 0 0 20px var(--accent-purple); transform: translateX(-5px); }
+
+        .admin-gear {
+            position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px;
+            background: var(--glass); backdrop-filter: blur(15px); border: 1px solid var(--border);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            text-decoration: none; font-size: 1.8rem; transition: 0.5s; z-index: 100;
+        }
+        .admin-gear:hover { transform: rotate(180deg) scale(1.1); background: #fff; color: #000; }
+
+        input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1) brightness(1.5); cursor: pointer; }
+
+
+        /* =========================================
+           АДАПТИВ ДЛЯ ТЕЛЕФОНОВ (MOBILE FIRST LOGIC)
+           ========================================= */
+        @media screen and (max-width: 850px) {
+            
+            body {
+                padding: 20px 15px; /* Меньше отступы по краям */
+            }
+
+            .logo-main { font-size: 2.5rem; } /* Уменьшаем лого */
+            .group-number { font-size: 1.2rem; }
+
+            .date-picker-neon {
+                width: 100%; max-width: 100%; /* Календарь во всю ширину */
+                padding: 15px;
+            }
+
+            /* Превращаем таблицу в список карточек */
+            thead { display: none; } /* Скрываем заголовки таблицы */
+
+            .glass-card {
+                background: transparent;
+                border: none;
+                box-shadow: none;
+                backdrop-filter: none;
+                padding: 0;
+            }
+
+            tbody { 
+                display: block;
+                width: 100%;
+            }
+
+            tr { 
+                display: flex; 
+                flex-direction: column; 
+                background: var(--glass);
+                backdrop-filter: blur(15px);
+                border: 1px solid var(--border);
+                border-radius: 20px;
+                margin-bottom: 20px;
+                padding: 20px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            }
+
+            td {
+                padding: 10px 0;
+                border-bottom: none;
+                display: flex;
+                align-items: center;
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            /* Первый элемент (Студент) растягиваем */
+            td:first-child {
+                flex-direction: row;
+                gap: 15px;
+                padding-bottom: 20px;
+                border-bottom: 1px solid var(--border);
+                margin-bottom: 15px;
+            }
+            
+            /* Элемент "Мониторинг" центрируем и делаем побольше */
+            td:nth-child(2) {
+                justify-content: center;
+                padding: 10px 0;
+            }
+
+            .status-indicators {
+                margin-top: 5px;
+            }
+            .indicator-dot {
+                width: 16px; /* Делаем индикаторы крупнее для наглядности */
+                height: 16px;
+            }
+
+            /* Кнопку профиля переносим вниз и делаем во всю ширину */
+            td:last-child {
+                justify-content: center;
+                margin-top: 10px;
+            }
+
+            .btn-profile {
+                width: 100%;
+                margin: 0;
+                text-align: center;
+            }
+
+            /* Улучшение имени студента */
+            .student-name {
+                font-size: 1rem;
+                margin-left: 10px;
+            }
+            
+            .admin-gear {
+                bottom: 20px; right: 20px; width: 50px; height: 50px; font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <h1 class="logo-main">IThub.Journal</h1>
+        <div class="group-number">11 ИСИП-В</div>
+        
+        <div class="session-info">
+            <form method="GET" action="." id="dateForm">
+                <input type="text" name="date" id="main-cyber-calendar" class="date-picker-neon" 
+                    value="{% if request.GET.date %}{{ request.GET.date }}{% else %}{{ today|date:'Y-m-d' }}{% endif %}">
+            </form>
+
+            <span class="live-status">
+                {% if not request.GET.date or request.GET.date == today|date:'Y-m-d' %}● СИСТЕМА СИНХРОНИЗИРОВАНА{% else %}● КОНТРОЛЬ ПОСЕЩАЕМОСТИ{% endif %}
+            </span>
+
+            <a href="{% url 'schedule' %}" class="btn-schedule">🗓 РАСПИСАНИЕ <br> 
+                 <span style="font-size: 0.6rem; opacity: 0.7;">(на стадии разработки)</span>
+            </a>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="glass-card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Студент</th>
+                        <th style="text-align: center;">Мониторинг посещений</th>
+                        <th style="text-align: right;">Подробно</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in data %}
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <div class="avatar">{{ item.student.full_name|slice:":1" }}</div>
+                                <span class="student-name">{{ item.student.full_name }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div style="display: inline-flex; flex-direction: column; align-items: center;">
+                                <div class="status-indicators">
+                                    {% for status in item.indicators %}
+                                        <div class="indicator-dot {{ status }}"></div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <a href="{% url 'student_detail' item.student.id %}" class="btn-profile">Профиль студента</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <a href="/admin/" class="admin-gear" title="Админ-панель">⚙️</a>
+
+    <script>
+    // 1. Бронебойный фикс черного экрана
+    function cleanupFadeOut() {
+        document.body.classList.remove('fade-out');
+        document.body.style.opacity = "1";
+    }
+
+    window.addEventListener('pageshow', (event) => {
+        cleanupFadeOut();
+    });
+
+    window.addEventListener('DOMContentLoaded', cleanupFadeOut);
+
+    // 2. Логика перехода
+    function transitionTo(url) {
+        document.body.classList.add('fade-out');
+        setTimeout(() => {
+            window.location.href = url;
+        }, 400); 
+    }
+
+    // Запускаем flatpickr
+    const fp = flatpickr("#main-cyber-calendar", {
+        locale: "ru",
+        dateFormat: "Y-m-d",
+        disableMobile: true, // Принудительно используем кастомный пикер даже на мобайле для красоты
+        firstDayOfWeek: 1,
+        onChange: function(selectedDates, dateStr, instance) {
+            transitionTo(window.location.pathname + '?date=' + dateStr);
+        }
+    });
+
+    // Обработка Enter на инпуте (резерв)
+    const dateInput = document.getElementById('main-cyber-calendar');
+    dateInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            // Flatpckr сам переключит дату, а мы просто обновим
+            this.blur();
+        }
+    });
+
+    // Обработка всех ссылок с анимацией
+    document.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', function(e) {
+            const href = this.getAttribute('href');
+            if (href && 
+                this.hostname === window.location.hostname && 
+                !href.includes('admin') && 
+                !href.startsWith('#') &&
+                !this.target) {
+                
+                e.preventDefault();
+                transitionTo(href);
+            }
+        });
+    });
+    </script>
+</body>
+</html>
